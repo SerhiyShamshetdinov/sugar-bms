@@ -1,0 +1,63 @@
+name: sugar-bms tests on push to or on the creating PR to 'main' branch if sources are changed
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths: ['build.sbt', 'project/**', 'src/**']
+
+  push:
+    branches: [ main ]
+    paths: ['build.sbt', 'project/**', 'src/**']
+
+env:
+  # define Java options for both official sbt and sbt-extras -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M
+  JAVA_OPTS: -Dfile.encoding=UTF-8
+  JVM_OPTS:  -Dfile.encoding=UTF-8
+
+jobs:
+  sugar-bms-test-all-scala-versions:
+    name: Runs non-heavy sugar-bms tests in parallel for workflow hardcoded Scala versions on ubuntu-latest under JDK 8
+
+    strategy:
+      fail-fast: false
+      matrix:
+        run-on-os: [ ubuntu-latest ]
+        scala-version: [ "2.12.14", "2.13.6" ] # "2.11.12", # 2.11 tests takes 4.5h at github
+        jdk-version: [ 8 ]
+
+    runs-on: ${{ matrix.run-on-os }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK ${{ matrix.jdk-version }} on ${{ matrix.run-on-os }}
+      uses: actions/setup-java@v2
+      with:
+        java-version: '${{ matrix.jdk-version }}'
+        distribution: 'adopt'
+#    - name: Setup sbt on MacOS
+#      if: ${{ startsWith(matrix.run-on-os, 'macOS') }}
+#      run: brew install sbt
+    - run: sbt ";++${{ matrix.scala-version }};sugar-bms/test"
+
+  sugar-bms-root-features-tests-all-scala-3-jdk-versions:
+    name: Runs sugar-bms root features tests for all project Scala versions on ubuntu-latest under JDK 8, 11 & 16
+
+    strategy:
+      fail-fast: false
+      matrix:
+        run-on-os: [ ubuntu-latest ]
+        jdk-version: [ 8, 11, 16 ]
+
+    runs-on: ${{ matrix.run-on-os }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK ${{ matrix.jdk-version }} on ${{ matrix.run-on-os }}
+      uses: actions/setup-java@v2
+      with:
+        java-version: '${{ matrix.jdk-version }}'
+        distribution: 'adopt'
+#    - name: Setup sbt on MacOS
+#      if: ${{ startsWith(matrix.run-on-os, 'macOS') }}
+#      run: brew install sbt
+    - run: sbt "+test"
