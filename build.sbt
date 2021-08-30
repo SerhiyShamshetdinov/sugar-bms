@@ -40,7 +40,7 @@ val scala213 = "2.13.6"
 lazy val supportedScalaVersions = List(scala211, scala212, scala213)
 
 ThisBuild / scalaVersion := supportedScalaVersions.last
-ThisBuild / version := "0.1.0"
+ThisBuild / version := "0.1.1-SNAPSHOT"
 ThisBuild / description := "A library that implements statements and logical operators on Boolean Monads and Collections in Scala"
 ThisBuild / homepage := Some(url("https://github.com/SerhiyShamshetdinov/sugar-bms"))
 ThisBuild / licenses += "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
